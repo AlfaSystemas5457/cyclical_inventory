@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_cyclical_inventory"
+        model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.cyclical.inventory</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority"
+            eval="31"/>
+        <field name="inherit_id"
+            ref="stock.res_config_settings_view_form"/>
+        <field name="arch"
+            type="xml">
+            <xpath expr="//app[@name='stock']//block[@name='operations_setting_container']"
+                position="after">
+                <block title="Inventario Cíclico"
+                    id="cyclical_inventory_settings_container">
+                    <setting string="Activar Inventario Cíclico"
+                        help="Habilita la generación automática de ciclos de inventario cíclico.">
+                        <field name="cyclical_inventory_enabled"/>
+                    </setting>
+                    <setting string="Usuarios Asignados"
+                        invisible="not cyclical_inventory_enabled"
+                        help="Usuarios que participarán en los conteos cíclicos.">
+                        <field name="cyclical_inventory_user_ids"
+                            widget="many2many_tags"/>
+                    </setting>
+                    <setting string="Frecuencia y Cantidad"
+                        invisible="not cyclical_inventory_enabled"
+                        help="Configura cada cuántos días se genera un ciclo y cuántos productos incluir.">
+                        <div class="content-group">
+                            <label for="cyclical_inventory_frequency"/>
+                            <field name="cyclical_inventory_frequency"
+                                class="o_light_label text-center mx-2"
+                                style="width: 50px;"/>
+                            <span> días</span>
+                            <br/>
+                            <label for="cyclical_inventory_count"/>
+                            <field name="cyclical_inventory_count"
+                                class="o_light_label text-center mx-2"
+                                style="width: 50px;"/>
+                            <span> productos</span>
+                        </div>
+                    </setting>
+                    <setting string="Método y Distribución"
+                        invisible="not cyclical_inventory_enabled"
+                        help="Selecciona el método de conteo y cómo se distribuyen los productos entre los ciclos.">
+                        <div class="content-group">
+                            <label for="cyclical_inventory_method"/>
+                            <field name="cyclical_inventory_method"
+                                class="mx-2"/>
+                            <br/>
+                            <label for="cyclical_inventory_distribution"/>
+                            <field name="cyclical_inventory_distribution"
+                                class="mx-2"/>
+                        </div>
+                    </setting>
+                    <setting string="Responsable de Inventario"
+                        invisible="not cyclical_inventory_enabled"
+                        help="Usuario que recibirá actividades cuando haya discrepancias entre la cantidad teórica y la contada.">
+                        <field name="cyclical_inventory_responsible_id"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

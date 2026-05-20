@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_cyclical_inventory_line_form"
+        model="ir.ui.view">
+        <field name="name">cyclical.inventory.line.form</field>
+        <field name="model">cyclical.inventory.line</field>
+        <field name="arch"
+            type="xml">
+            <form>
+                <header>
+                    <field name="state"
+                        readonly="1"
+                        widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="product_id"
+                            class="oe_edit_only"/>
+                        <h1>
+                            <field name="product_id"
+                                readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="user_id"
+                                readonly="1"
+                                invisible="not user_id"/>
+                            <field name="counted_date"
+                                readonly="1"/>
+                            <field name="counted_by"
+                                readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="theoretical_quantity"
+                                readonly="1"/>
+                            <field name="inventory_quantity"
+                                readonly="state == 'counted'"/>
+                        </group>
+                    </group>
+
+                    <footer>
+                        <button string="Guardar"
+                            class="btn-primary"
+                            invisible="state == 'counted'"
+                            special="save"/>
+                        <button string="Cancelar"
+                            special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

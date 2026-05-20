@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario Cíclico</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; color: #333; line-height: 1.6; }
+        h1 { color: #714B67; border-bottom: 2px solid #714B67; padding-bottom: 10px; }
+        h2 { color: #555; margin-top: 30px; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 6px; }
+        .feature { background: #f8f4f7; padding: 15px 20px; border-radius: 8px; margin: 15px 0; }
+        .feature h3 { margin-top: 0; color: #714B67; }
+    </style>
+</head>
+<body>
+
+<h1>Inventario Cíclico</h1>
+<p>Versión 1.0 | Odoo 19.0</p>
+<p>Módulo para la gestión automatizada de inventarios cíclicos. Permite programar conteos periódicos de productos, asignarlos a usuarios y detectar discrepancias automáticamente.</p>
+
+<h2>Características principales</h2>
+
+<div class="feature">
+    <h3>Configuración flexible</h3>
+    <p>Desde Ajustes de Inventario se configura:</p>
+    <ul>
+        <li><strong>Frecuencia</strong>: cada cuántos días se genera un nuevo ciclo.</li>
+        <li><strong>Cantidad de productos</strong>: número de productos a incluir por ciclo.</li>
+        <li><strong>Método de conteo</strong>: ordenado (por nombre) o aleatorio.</li>
+        <li><strong>Distribución</strong>: por usuario (cada uno recibe N productos) o compartido (todos cuentan los mismos).</li>
+        <li><strong>Usuarios asignados</strong>: quiénes participan en los conteos.</li>
+        <li><strong>Responsable de inventario</strong>: recibe actividades cuando hay discrepancias.</li>
+    </ul>
+</div>
+
+<div class="feature">
+    <h3>Generación de ciclos</h3>
+    <p>Los ciclos se generan de dos formas:</p>
+    <ul>
+        <li><strong>Automática</strong>: mediante un cron diario que revisa la frecuencia configurada.</li>
+        <li><strong>Manual</strong>: creando un ciclo y presionando "Generar Líneas".</li>
+    </ul>
+    <p>El sistema selecciona productos con existencias positivas en ubicaciones internas y los asigna según la distribución configurada.</p>
+</div>
+
+<div class="feature">
+    <h3>Conteo de productos</h3>
+    <p>Cada línea del ciclo puede contarse de varias maneras:</p>
+    <ul>
+        <li><strong>Contar</strong>: abre el Physical Inventory de Odoo para ese producto.</li>
+        <li><strong>Marcar Contado</strong>: marca la línea como contada manualmente.</li>
+        <li><strong>Edición directa</strong>: la cantidad contada puede escribirse directamente en la lista.</li>
+        <li><strong>Actualizar Estado</strong>: sincroniza desde los quants de Odoo.</li>
+    </ul>
+</div>
+
+<div class="feature">
+    <h3>Detección de discrepancias</h3>
+    <p>Al marcar un producto como contado (o al sincronizar desde el inventario físico), si la cantidad contada difiere de la cantidad teórica, el sistema crea automáticamente una actividad tipo "To-Do" asignada al responsable de inventario con el detalle de la diferencia.</p>
+</div>
+
+<div class="feature">
+    <h3>Seguridad y estados</h3>
+    <p>Los ciclos tienen tres estados:</p>
+    <ul>
+        <li><strong>Borrador</strong>: editable, se configura el ciclo y se generan líneas.</li>
+        <li><strong>En Progreso</strong>: solo la cantidad contada es editable; se realizan los conteos.</li>
+        <li><strong>Finalizado</strong>: solo lectura.</li>
+    </ul>
+    <p>Los usuarios con rol <em>stock.group_stock_manager</em> tienen control total. Los usuarios estándar pueden ver ciclos y gestionar líneas.</p>
+</div>
+
+<h2>Modelos</h2>
+<ul>
+    <li><strong>cyclical.inventory.cycle</strong>: ciclo con fecha, frecuencia, método, distribución, usuarios asignados y líneas.</li>
+    <li><strong>cyclical.inventory.line</strong>: producto, usuario asignado, estado, cantidades teórica y contada.</li>
+</ul>
+
+<h2>Dependencias</h2>
+<ul>
+    <li>stock</li>
+    <li>mail</li>
+</ul>
+
+</body>
+</html>

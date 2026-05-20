@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="cyclical_inventory_cycle_tree"
+        model="ir.ui.view">
+        <field name="name">cyclical.inventory.cycle.tree</field>
+        <field name="model">cyclical.inventory.cycle</field>
+        <field name="arch"
+            type="xml">
+            <list>
+                <field name="name"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="frequency"/>
+                <field name="number_of_products"/>
+                <field name="product_count"/>
+                <field name="counted_count"/>
+                <field name="progress"
+                    widget="progressbar"/>
+                <field name="state"
+                    widget="badge"
+                    decoration-success="state == 'done'"
+                    decoration-info="state == 'in_progress'"
+                    decoration-warning="state == 'draft'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="cyclical_inventory_cycle_form"
+        model="ir.ui.view">
+        <field name="name">cyclical.inventory.cycle.form</field>
+        <field name="model">cyclical.inventory.cycle</field>
+        <field name="arch"
+            type="xml">
+            <form>
+                <header>
+                    <button name="action_generate_lines"
+                        string="Generar Líneas"
+                        type="object"
+                        invisible="state not in ['draft']"
+                        groups="stock.group_stock_manager"/>
+                    <button name="action_update_counted_status"
+                        string="Actualizar Estado"
+                        type="object"
+                        invisible="state not in ['in_progress']"
+                        groups="stock.group_stock_manager"/>
+                    <button name="action_done"
+                        string="Finalizar Ciclo"
+                        type="object"
+                        invisible="state not in ['in_progress']"
+                        groups="stock.group_stock_manager"/>
+                    <button name="action_reset"
+                        string="Volver a Borrador"
+                        type="object"
+                        invisible="state not in ['in_progress','done']"
+                        groups="stock.group_stock_manager"/>
+                    <button name="action_clear_lines"
+                        string="Limpiar Líneas"
+                        type="object"
+                        invisible="state not in ['draft','in_progress']"
+                        groups="stock.group_stock_manager"/>
+                    <field name="state"
+                        widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"
+                            class="oe_edit_only"/>
+                        <h1>
+                            <field name="name"
+                                placeholder="Nombre del ciclo..."
+                                readonly="state not in ['draft']"
+                                force_save="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date_from"
+                                readonly="state not in ['draft']"
+                                force_save="1"/>
+                            <field name="date_to"
+                                readonly="1"/>
+                            <field name="company_id"
+                                groups="base.group_multi_company"
+                                force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="frequency"
+                                readonly="state not in ['draft']"
+                                force_save="1"/>
+                            <field name="number_of_products"
+                                readonly="state not in ['draft']"
+                                force_save="1"/>
+                        </group>
+                    </group>
+                    <group string="Configuración">
+                        <group>
+                            <field name="counting_method"
+                                readonly="state not in ['draft']"
+                                force_save="1"/>
+                            <field name="distribution"
+                                readonly="state not in ['draft']"
+                                force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="user_ids"
+                                widget="many2many_tags"
+                                readonly="state not in ['draft']"
+                                force_save="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="products"
+                            string="Productos">
+                            <field name="line_ids">
+                                <list>
+                                    <field name="product_id"
+                                        readonly="1"/>
+                                    <field name="user_id"
+                                        readonly="state not in ['draft']"/>
+                                    <field name="state"
+                                        readonly="1"
+                                        widget="badge"
+                                        decoration-success="state == 'counted'"
+                                        decoration-info="state == 'pending'"/>
+                                    <field name="theoretical_quantity"
+                                        readonly="1"/>
+                                    <field name="inventory_quantity"
+                                        readonly="state not in ['draft','in_progress']"/>
+                                    <field name="counted_date"
+                                        readonly="1"/>
+                                    <field name="counted_by"
+                                        readonly="1"/>
+                                    <button name="action_count"
+                                        string="Contar"
+                                        type="object"
+                                        icon="fa-pencil-square-o"
+                                        invisible="state not in ['pending']"/>
+                                    <button name="action_mark_counted"
+                                        string="Marcar Contado"
+                                        type="object"
+                                        icon="fa-check"
+                                        invisible="state not in ['pending']"/>
+                                    <button name="action_mark_pending"
+                                        string="Reabrir"
+                                        type="object"
+                                        icon="fa-undo"
+                                        invisible="state not in ['counted']"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="stats"
+                            string="Estadísticas">
+                            <group>
+                                <group>
+                                    <field name="product_count"/>
+                                    <field name="counted_count"/>
+                                </group>
+                                <group>
+                                    <field name="progress"
+                                        widget="progressbar"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="cyclical_inventory_cycle_search"
+        model="ir.ui.view">
+        <field name="name">cyclical.inventory.cycle.search</field>
+        <field name="model">cyclical.inventory.cycle</field>
+        <field name="arch"
+            type="xml">
+            <search>
+                <field name="name"/>
+                <field name="state"/>
+                <field name="user_ids"/>
+                <filter string="En Progreso"
+                    name="in_progress"
+                    domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Finalizados"
+                    name="done"
+                    domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter string="Mis Ciclos"
+                    name="my_cycles"
+                    domain="[('user_ids', 'in', [uid])]"
+                    help="Ciclos donde estoy asignado como usuario"/>
+
+                <group>
+                    <filter string="Estado"
+                        name="group_state"
+                        context="{'group_by': 'state'}"/>
+                    <filter string="Método"
+                        name="group_method"
+                        context="{'group_by': 'counting_method'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="cyclical_inventory_cycle_action"
+        model="ir.actions.act_window">
+        <field name="name">Inventario Cíclico</field>
+        <field name="res_model">cyclical.inventory.cycle</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">cyclical_inventory</field>
+        <field name="search_view_id"
+            ref="cyclical_inventory_cycle_search"/>
+        <field name="help"
+            type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Planifica tu primer ciclo de inventario cíclico
+            </p>
+            <p>
+                Los ciclos de inventario seleccionan automáticamente productos para contar
+                según la frecuencia configurada en Ajustes de Inventario.
+            </p>
+        </field>
+    </record>
+</odoo>

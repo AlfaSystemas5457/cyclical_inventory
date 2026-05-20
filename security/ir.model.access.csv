@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_cyclical_inventory_cycle_manager,cyclical.inventory.cycle.manager,model_cyclical_inventory_cycle,stock.group_stock_manager,1,1,1,1
+access_cyclical_inventory_cycle_user,cyclical.inventory.cycle.user,model_cyclical_inventory_cycle,stock.group_stock_user,1,0,0,0
+access_cyclical_inventory_line_manager,cyclical.inventory.line.manager,model_cyclical_inventory_line,stock.group_stock_manager,1,1,1,1
+access_cyclical_inventory_line_user,cyclical.inventory.line.user,model_cyclical_inventory_line,stock.group_stock_user,1,1,0,0

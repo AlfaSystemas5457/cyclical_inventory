@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_cyclical_inventory_root"
+        name="Inventario Cíclico"
+        parent="stock.menu_stock_root"
+        action="cyclical_inventory_cycle_action"
+        sequence="50"
+        groups="stock.group_stock_user"/>
+</odoo>
