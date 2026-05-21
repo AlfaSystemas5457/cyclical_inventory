@@ -262,8 +262,12 @@ class CyclicalInventoryCycle(models.Model):
                         "Distribución: %(dist)s",
                         products=cycle.number_of_products,
                         date=cycle.date_from,
-                        method=dict(cycle._fields['counting_method'].selection).get(cycle.counting_method),
-                        dist=dict(cycle._fields['distribution'].selection).get(cycle.distribution),
+                        method=dict(cycle._fields["counting_method"].selection).get(
+                            cycle.counting_method
+                        ),
+                        dist=dict(cycle._fields["distribution"].selection).get(
+                            cycle.distribution
+                        ),
                     ),
                     user_id=user.id,
                 )
@@ -294,6 +298,14 @@ class CyclicalInventoryLine(models.Model):
     theoretical_quantity = fields.Float(
         string="Cantidad Teórica", compute="_compute_theoretical_quantity", store=True
     )
+    is_ended = fields.Boolean(
+        string="Ciclo Finalizado", readonly=True, compute="_compute_is_ended"
+    )
+
+    @api.depends("cycle_id.state")
+    def _compute_is_ended(self):
+        for r in self:
+            r.is_ended = r.cycle_id.state == "done"
 
     @api.depends("product_id")
     def _compute_theoretical_quantity(self):

@@ -8,16 +8,21 @@
             type="xml">
             <list>
                 <field name="create_date"
-                    string="Fecha de Creación"/>
+                    string="Fecha de Creación"
+                    optional="show"/>
                 <field name="name"/>
                 <field name="date_from"/>
                 <field name="date_to"/>
-                <field name="frequency"/>
+                <field name="frequency"
+                    optional="hide"/>
                 <field name="number_of_products"
-                    width="160"/>
+                    width="160"
+                    optional="show"/>
                 <field name="product_count"
-                    width="120"/>
-                <field name="counted_count"/>
+                    width="120"
+                    optional="show"/>
+                <field name="counted_count"
+                    optional="show"/>
                 <field name="progress"
                     width="200"
                     widget="progressbar"/>
@@ -61,6 +66,7 @@
                         string="Limpiar Líneas"
                         type="object"
                         invisible="state not in ['draft','in_progress']"/>
+
                     <field name="state"
                         widget="statusbar"/>
                 </header>
@@ -127,7 +133,7 @@
                                     <field name="product_id"
                                         readonly="1"/>
                                     <field name="user_id"
-                                        readonly="state not in ['draft']"/>
+                                        readonly="state not in ['draft'] or is_ended"/>
                                     <field name="state"
                                         readonly="1"
                                         widget="badge"
@@ -136,26 +142,27 @@
                                     <field name="theoretical_quantity"
                                         readonly="1"/>
                                     <field name="inventory_quantity"
-                                        readonly="state not in ['draft','in_progress']"/>
+                                        readonly="state not in ['draft','in_progress'] or is_ended"/>
                                     <field name="counted_date"
                                         readonly="1"/>
                                     <field name="counted_by"
                                         readonly="1"/>
+
                                     <button name="action_count"
                                         string="Contar"
                                         type="object"
                                         icon="fa-pencil-square-o"
-                                        invisible="state not in ['pending']"/>
+                                        invisible="state not in ['pending'] or is_ended"/>
                                     <button name="action_mark_counted"
                                         string="Marcar Contado"
                                         type="object"
                                         icon="fa-check"
-                                        invisible="state not in ['pending']"/>
+                                        invisible="state not in ['pending'] or is_ended"/>
                                     <button name="action_mark_pending"
                                         string="Reabrir"
                                         type="object"
                                         icon="fa-undo"
-                                        invisible="state not in ['counted']"/>
+                                        invisible="state not in ['counted'] or is_ended"/>
                                 </list>
                             </field>
                         </page>
