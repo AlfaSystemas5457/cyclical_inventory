@@ -2,6 +2,7 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 from ast import literal_eval
 import random
 
@@ -34,7 +35,17 @@ class CyclicalInventoryCycle(models.Model):
         "res.company", string="Compañía", default=lambda self: self.env.company
     )
 
-    frequency = fields.Integer(string="Frecuencia (días)", default=7)
+    frequency = fields.Integer(string="Frecuencia", default=7)
+    frequency_type = fields.Selection(
+        [
+            ("days", "Días"),
+            ("weeks", "Semanas"),
+            ("months", "Meses"),
+            ("years", "Años"),
+        ],
+        string="Tipo de Frecuencia",
+        default="days",
+    )
     number_of_products = fields.Integer(string="Cantidad de Productos", default=20)
     counting_method = fields.Selection(
         [
@@ -97,12 +108,20 @@ class CyclicalInventoryCycle(models.Model):
                 _("No hay productos disponibles para generar el ciclo.")
             )
 
+        uncounted = products.filtered(lambda p: not p.cyclical_counted)
+
+        if not uncounted:
+            products.write({"cyclical_counted": False})
+            uncounted = products
+
+        pool = uncounted
+
         if self.counting_method == "random":
-            selected = list(products)
+            selected = list(pool)
             random.shuffle(selected)
             selected = selected[: self.number_of_products]
         else:
-            selected = products.sorted(key=lambda p: p.display_name)[
+            selected = pool.sorted(key=lambda p: p.display_name)[
                 : self.number_of_products
             ]
 
@@ -162,6 +181,10 @@ class CyclicalInventoryCycle(models.Model):
                 default=7,
             )
         )
+        frequency_type = ICP.get_param(
+            "cyclical_inventory.cyclical_inventory_frequency_type",
+            default="days",
+        )
         number_of_products = int(
             ICP.get_param(
                 "cyclical_inventory.cyclical_inventory_count",
@@ -186,16 +209,18 @@ class CyclicalInventoryCycle(models.Model):
         today = fields.Date.today()
 
         if last_cycle:
-            next_date = last_cycle.date_from + timedelta(days=frequency)
+            delta = relativedelta(**{frequency_type: frequency})
+            next_date = last_cycle.date_from + delta
 
             if today < next_date:
                 return
 
         cycle = self.create(
             {
-                "name": _(f"Inventario Cíclico {today.strftime('%d-%m-%Y')}"),
+                "name": _(f"Inventario Cíclico {today.strftime('%d/%m/%Y')}"),
                 "date_from": today,
                 "frequency": frequency,
+                "frequency_type": frequency_type,
                 "number_of_products": number_of_products,
                 "counting_method": counting_method,
                 "distribution": distribution,
@@ -295,6 +320,7 @@ class CyclicalInventoryLine(models.Model):
                     "inventory_quantity": quant.inventory_quantity,
                 }
             )
+            self.product_id.cyclical_counted = True
             if abs(self.inventory_quantity - self.theoretical_quantity) > 0.001:
                 self._create_discrepancy_activity()
 
@@ -316,6 +342,7 @@ class CyclicalInventoryLine(models.Model):
         if quant and not self.inventory_quantity:
             vals["inventory_quantity"] = quant.inventory_quantity
         self.write(vals)
+        self.product_id.cyclical_counted = True
         if abs(self.inventory_quantity - self.theoretical_quantity) > 0.001:
             self._create_discrepancy_activity()
 
@@ -373,6 +400,7 @@ class CyclicalInventoryLine(models.Model):
 
     def action_mark_pending(self):
         self.ensure_one()
+        self.product_id.cyclical_counted = False
         self.write(
             {
                 "state": "pending",

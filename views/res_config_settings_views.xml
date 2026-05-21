@@ -26,13 +26,14 @@
                     </setting>
                     <setting string="Frecuencia y Cantidad"
                         invisible="not cyclical_inventory_enabled"
-                        help="Configura cada cuántos días se genera un ciclo y cuántos productos incluir.">
+                        help="Configura cada cuánto se genera un ciclo y cuántos productos incluir.">
                         <div class="content-group">
                             <label for="cyclical_inventory_frequency"/>
                             <field name="cyclical_inventory_frequency"
                                 class="o_light_label text-center mx-2"
                                 style="width: 50px;"/>
-                            <span> días</span>
+                            <field name="cyclical_inventory_frequency_type"
+                                class="mx-2"/>
                             <br/>
                             <label for="cyclical_inventory_count"/>
                             <field name="cyclical_inventory_count"

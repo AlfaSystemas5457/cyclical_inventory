@@ -11,6 +11,7 @@
     """,
     "summary": "Inventario cíclico automatizado",
     "author": "DGV",
+    "website": "https://github.com/AlfaSystemas5457/cyclical_inventory",
     "license": "LGPL-3",
     "category": "Inventory",
     "depends": ["stock"],

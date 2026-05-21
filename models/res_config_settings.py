@@ -14,10 +14,23 @@ class ResConfigSettings(models.TransientModel):
     )
 
     cyclical_inventory_frequency = fields.Integer(
-        string="Frecuencia (días)",
+        string="Frecuencia",
         default=7,
         config_parameter="cyclical_inventory.cyclical_inventory_frequency",
-        help="Cada cuántos días se genera un nuevo ciclo.",
+        help="Cada cuánto se genera un nuevo ciclo.",
+    )
+
+    cyclical_inventory_frequency_type = fields.Selection(
+        [
+            ("days", "Días"),
+            ("weeks", "Semanas"),
+            ("months", "Meses"),
+            ("years", "Años"),
+        ],
+        string="Tipo de Frecuencia",
+        default="days",
+        config_parameter="cyclical_inventory.cyclical_inventory_frequency_type",
+        help="Unidad de tiempo para la frecuencia del ciclo.",
     )
 
     cyclical_inventory_count = fields.Integer(

@@ -7,16 +7,22 @@
         <field name="arch"
             type="xml">
             <list>
+                <field name="create_date"
+                    string="Fecha de Creación"/>
                 <field name="name"/>
                 <field name="date_from"/>
                 <field name="date_to"/>
                 <field name="frequency"/>
-                <field name="number_of_products"/>
-                <field name="product_count"/>
+                <field name="number_of_products"
+                    width="160"/>
+                <field name="product_count"
+                    width="120"/>
                 <field name="counted_count"/>
                 <field name="progress"
+                    width="200"
                     widget="progressbar"/>
                 <field name="state"
+                    width="100"
                     widget="badge"
                     decoration-success="state == 'done'"
                     decoration-info="state == 'in_progress'"
@@ -87,6 +93,9 @@
                             <field name="frequency"
                                 readonly="state not in ['draft']"
                                 force_save="1"/>
+                            <field name="frequency_type"
+                                readonly="state not in ['draft']"
+                                force_save="1"/>
                             <field name="number_of_products"
                                 readonly="state not in ['draft']"
                                 force_save="1"/>
@@ -111,7 +120,8 @@
                     <notebook>
                         <page name="products"
                             string="Productos">
-                            <field name="line_ids">
+                            <field name="line_ids"
+                                readonly="state == 'done'">
                                 <list>
                                     <field name="product_id"
                                         readonly="1"/>
