@@ -60,6 +60,11 @@
                         help="Usuario que recibirá actividades cuando haya discrepancias entre la cantidad teórica y la contada.">
                         <field name="cyclical_inventory_responsible_id"/>
                     </setting>
+                    <setting string="Inventario por Categoría"
+                        invisible="not cyclical_inventory_enabled"
+                        help="Deberá seleccionar una categoría manualmente en cada ciclo y luego generar las líneas de productos.">
+                        <field name="cyclical_inventory_by_category"/>
+                    </setting>
                 </block>
             </xpath>
         </field>

@@ -69,6 +69,12 @@ class ResConfigSettings(models.TransientModel):
         help="Usuario que recibirá notificaciones de actividades cuando haya discrepancias en los conteos.",
     )
 
+    cyclical_inventory_by_category = fields.Boolean(
+        string="Inventario por Categoría",
+        config_parameter="cyclical_inventory.cyclical_inventory_by_category",
+        help="Activa la selección manual de categoría por ciclo. El cron creará ciclos en borrador para que el usuario elija la categoría.",
+    )
+
     cyclical_inventory_user_ids = fields.Many2many(
         "res.users",
         string="Usuarios Asignados",

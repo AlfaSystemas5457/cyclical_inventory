@@ -42,8 +42,7 @@
                     <button name="action_generate_lines"
                         string="Generar Líneas"
                         type="object"
-                        invisible="state not in ['draft']"
-                        groups="stock.group_stock_manager"/>
+                        invisible="state not in ['draft']"/>
                     <button name="action_update_counted_status"
                         string="Actualizar Estado"
                         type="object"
@@ -52,8 +51,7 @@
                     <button name="action_done"
                         string="Finalizar Ciclo"
                         type="object"
-                        invisible="state not in ['in_progress']"
-                        groups="stock.group_stock_manager"/>
+                        invisible="state not in ['in_progress']"/>
                     <button name="action_reset"
                         string="Volver a Borrador"
                         type="object"
@@ -62,8 +60,7 @@
                     <button name="action_clear_lines"
                         string="Limpiar Líneas"
                         type="object"
-                        invisible="state not in ['draft','in_progress']"
-                        groups="stock.group_stock_manager"/>
+                        invisible="state not in ['draft','in_progress']"/>
                     <field name="state"
                         widget="statusbar"/>
                 </header>
@@ -81,7 +78,7 @@
                     <group>
                         <group>
                             <field name="date_from"
-                                readonly="state not in ['draft']"
+                                readonly="1"
                                 force_save="1"/>
                             <field name="date_to"
                                 readonly="1"/>
@@ -91,10 +88,10 @@
                         </group>
                         <group>
                             <field name="frequency"
-                                readonly="state not in ['draft']"
+                                readonly="1"
                                 force_save="1"/>
                             <field name="frequency_type"
-                                readonly="state not in ['draft']"
+                                readonly="1"
                                 force_save="1"/>
                             <field name="number_of_products"
                                 readonly="state not in ['draft']"
@@ -109,11 +106,15 @@
                             <field name="distribution"
                                 readonly="state not in ['draft']"
                                 force_save="1"/>
+                            <field name="category_ids"
+                                widget="many2many_tags"
+                                readonly="state not in ['draft']"
+                                force_save="1"/>
                         </group>
                         <group>
                             <field name="user_ids"
                                 widget="many2many_tags"
-                                readonly="state not in ['draft']"
+                                readonly="1"
                                 force_save="1"/>
                         </group>
                     </group>

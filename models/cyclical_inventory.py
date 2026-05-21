@@ -65,6 +65,7 @@ class CyclicalInventoryCycle(models.Model):
         default="shared",
         required=True,
     )
+    category_ids = fields.Many2many("product.category", string="Categorías")
     user_ids = fields.Many2many("res.users", string="Usuarios Asignados")
     line_ids = fields.One2many(
         "cyclical.inventory.line", "cycle_id", string="Productos a Inventariar"
@@ -93,12 +94,25 @@ class CyclicalInventoryCycle(models.Model):
                 _("Ya hay líneas generadas. Elimínelas primero si desea regenerar.")
             )
 
-        quants = self.env["stock.quant"].search(
-            [
-                ("location_id.usage", "=", "internal"),
-                ("quantity", ">", 0),
-            ]
-        )
+        domain = [
+            ("location_id.usage", "=", "internal"),
+            ("quantity", ">", 0),
+        ]
+        if self.category_ids:
+            cat_ids = set()
+            for cat in self.category_ids:
+                cat_ids.update(
+                    self.env["product.category"]
+                    .search(
+                        [
+                            ("id", "child_of", cat.id),
+                        ]
+                    )
+                    .ids
+                )
+            domain.append(("product_id.categ_id", "in", list(cat_ids)))
+
+        quants = self.env["stock.quant"].search(domain)
         products = quants.mapped("product_id")
         product_ids = set(products.ids)
         products = self.env["product.product"].browse(product_ids)
@@ -111,7 +125,7 @@ class CyclicalInventoryCycle(models.Model):
         uncounted = products.filtered(lambda p: not p.cyclical_counted)
 
         if not uncounted:
-            products.write({"cyclical_counted": False})
+            products.sudo().write({"cyclical_counted": False})
             uncounted = products
 
         pool = uncounted
@@ -204,6 +218,10 @@ class CyclicalInventoryCycle(models.Model):
             default="[]",
         )
 
+        by_category = ICP.get_param(
+            "cyclical_inventory.cyclical_inventory_by_category",
+            default="False",
+        )
         user_ids = literal_eval(user_ids)
         last_cycle = self.search([], order="date_from desc", limit=1)
         today = fields.Date.today()
@@ -228,7 +246,27 @@ class CyclicalInventoryCycle(models.Model):
             }
         )
 
-        cycle.action_generate_lines()
+        if by_category != "True":
+            cycle.action_generate_lines()
+
+        if cycle.user_ids:
+            for user in cycle.user_ids:
+                cycle.activity_schedule(
+                    activity_type_id=self.env.ref("mail.mail_activity_data_todo").id,
+                    summary=_("Nuevo ciclo de inventario: %s", cycle.name),
+                    note=_(
+                        "Se ha generado un nuevo ciclo de inventario.\n"
+                        "Productos a contar: %(products)s\n"
+                        "Fecha: %(date)s\n"
+                        "Método: %(method)s\n"
+                        "Distribución: %(dist)s",
+                        products=cycle.number_of_products,
+                        date=cycle.date_from,
+                        method=dict(cycle._fields['counting_method'].selection).get(cycle.counting_method),
+                        dist=dict(cycle._fields['distribution'].selection).get(cycle.distribution),
+                    ),
+                    user_id=user.id,
+                )
 
 
 class CyclicalInventoryLine(models.Model):
@@ -320,7 +358,7 @@ class CyclicalInventoryLine(models.Model):
                     "inventory_quantity": quant.inventory_quantity,
                 }
             )
-            self.product_id.cyclical_counted = True
+            self.product_id.sudo().cyclical_counted = True
             if abs(self.inventory_quantity - self.theoretical_quantity) > 0.001:
                 self._create_discrepancy_activity()
 
@@ -342,7 +380,7 @@ class CyclicalInventoryLine(models.Model):
         if quant and not self.inventory_quantity:
             vals["inventory_quantity"] = quant.inventory_quantity
         self.write(vals)
-        self.product_id.cyclical_counted = True
+        self.product_id.sudo().cyclical_counted = True
         if abs(self.inventory_quantity - self.theoretical_quantity) > 0.001:
             self._create_discrepancy_activity()
 
@@ -400,7 +438,7 @@ class CyclicalInventoryLine(models.Model):
 
     def action_mark_pending(self):
         self.ensure_one()
-        self.product_id.cyclical_counted = False
+        self.product_id.sudo().cyclical_counted = False
         self.write(
             {
                 "state": "pending",
