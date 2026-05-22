@@ -18,6 +18,7 @@
     "data": [
         "security/ir.model.access.csv",
         "data/cron_data.xml",
+        "data/sequence_data.xml",
         "views/cyclical_inventory_views.xml",
         "views/cyclical_inventory_line_views.xml",
         "views/res_config_settings_views.xml",

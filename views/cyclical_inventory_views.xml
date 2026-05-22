@@ -10,7 +10,7 @@
                 <field name="create_date"
                     string="Fecha de Creación"
                     optional="show"/>
-                <field name="name"/>
+                <field name="uid"/>
                 <field name="date_from"/>
                 <field name="date_to"/>
                 <field name="frequency"
@@ -72,13 +72,10 @@
                 </header>
                 <sheet>
                     <div class="oe_title">
-                        <label for="name"
-                            class="oe_edit_only"/>
+                        <label for="uid"/>
                         <h1>
-                            <field name="name"
-                                placeholder="Nombre del ciclo..."
-                                readonly="state not in ['draft']"
-                                force_save="1"/>
+                            <field name="uid"
+                                readonly="1"/>
                         </h1>
                     </div>
                     <group>
@@ -93,12 +90,17 @@
                                 force_save="1"/>
                         </group>
                         <group>
-                            <field name="frequency"
-                                readonly="1"
-                                force_save="1"/>
-                            <field name="frequency_type"
-                                readonly="1"
-                                force_save="1"/>
+                            <label for="frequency"/>
+                            <div>
+                                <span class="o_form_label">
+                                    <field name="frequency"
+                                        readonly="1"
+                                        force_save="1"/>
+                                    <field name="frequency_type"
+                                        readonly="1"
+                                        force_save="1"/>
+                                </span>
+                            </div>
                             <field name="number_of_products"
                                 readonly="state not in ['draft']"
                                 force_save="1"/>
@@ -133,6 +135,7 @@
                                     <field name="product_id"
                                         readonly="1"/>
                                     <field name="user_id"
+                                        optional="show"
                                         readonly="state not in ['draft'] or is_ended"/>
                                     <field name="state"
                                         readonly="1"
@@ -140,12 +143,16 @@
                                         decoration-success="state == 'counted'"
                                         decoration-info="state == 'pending'"/>
                                     <field name="theoretical_quantity"
+                                        sum="Suma teórica"
                                         readonly="1"/>
                                     <field name="inventory_quantity"
+                                        sum="Sum contada"
                                         readonly="state not in ['draft','in_progress'] or is_ended"/>
                                     <field name="counted_date"
+                                        optional="show"
                                         readonly="1"/>
                                     <field name="counted_by"
+                                        optional="show"
                                         readonly="1"/>
 
                                     <button name="action_count"
@@ -193,7 +200,7 @@
         <field name="arch"
             type="xml">
             <search>
-                <field name="name"/>
+                <field name="uid"/>
                 <field name="state"/>
                 <field name="user_ids"/>
                 <filter string="En Progreso"

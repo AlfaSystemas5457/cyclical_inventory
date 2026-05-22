@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
-from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from ast import literal_eval
 import random
@@ -11,13 +10,12 @@ class CyclicalInventoryCycle(models.Model):
     _name = "cyclical.inventory.cycle"
     _description = "Ciclo de Inventario Cíclico"
     _inherit = ["mail.thread", "mail.activity.mixin"]
+    _rec_name = "uid"
     _order = "date_from desc"
 
-    name = fields.Char(
-        string="Nombre", required=True, default=lambda self: _("Borrador")
-    )
+    uid = fields.Char(string="Código", default=lambda self: _("Borrador"), copy=False)
     date_from = fields.Date(
-        string="Fecha Inicio", required=True, default=fields.Date.today
+        string="Fecha Inicio", required=True, default=fields.Date.today, copy=False
     )
     date_to = fields.Date(string="Fecha Fin")
     state = fields.Selection(
@@ -30,6 +28,7 @@ class CyclicalInventoryCycle(models.Model):
         default="draft",
         required=True,
         tracking=True,
+        copy=False,
     )
     company_id = fields.Many2one(
         "res.company", string="Compañía", default=lambda self: self.env.company
@@ -93,6 +92,9 @@ class CyclicalInventoryCycle(models.Model):
             raise ValidationError(
                 _("Ya hay líneas generadas. Elimínelas primero si desea regenerar.")
             )
+
+        if self.uid == _("Borrador"):
+            self.uid = self.env["ir.sequence"].next_by_code("cyclical.inventory.cycle")
 
         domain = [
             ("location_id.usage", "=", "internal"),
@@ -176,6 +178,7 @@ class CyclicalInventoryCycle(models.Model):
 
     def action_clear_lines(self):
         self.ensure_one()
+        self.line_ids.product_id.sudo().write({"cyclical_counted": False})
         self.line_ids.unlink()
         self.state = "draft"
 
@@ -235,7 +238,6 @@ class CyclicalInventoryCycle(models.Model):
 
         cycle = self.create(
             {
-                "name": _(f"Inventario Cíclico {today.strftime('%d/%m/%Y')}"),
                 "date_from": today,
                 "frequency": frequency,
                 "frequency_type": frequency_type,
@@ -253,7 +255,7 @@ class CyclicalInventoryCycle(models.Model):
             for user in cycle.user_ids:
                 cycle.activity_schedule(
                     activity_type_id=self.env.ref("mail.mail_activity_data_todo").id,
-                    summary=_("Nuevo ciclo de inventario: %s", cycle.name),
+                    summary=_("Nuevo ciclo de inventario: %s", cycle.uid),
                     note=_(
                         "Se ha generado un nuevo ciclo de inventario.\n"
                         "Productos a contar: %(products)s\n"
